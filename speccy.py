@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import gi
 try:
     gi.require_version('Gtk', '3.0')
@@ -23,7 +23,8 @@ class Speccy(object):
     # min freq, max freq (inclusive), ch spacing
     # we will render +/- 10 MHz
     bands = [
-        (2412, 2472, 5),        # 2.4 GHz
+        #(2412, 2412, 10),        # 2.4 GHz
+        (2312, 2472, 10),        # 2.4 GHz
         (5180, 5240, 20),       # U-NII-1
         (5260, 5320, 20),       # U-NII-2
         (5500, 5580, 20),       # U-NII-2e-a

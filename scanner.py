@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 from multiprocessing import Value
 from threading import Thread, Lock
 import os
@@ -47,11 +47,15 @@ class Scanner(object):
             if self.mode.value == 1:  # only in 'chanscan' mode
                 cmd = 'iw dev %s scan' % self.interface
                 self.lock.acquire()
+#                self.freqlist=['2372','2472']; # tisho
                 if self.freqlist:
                     cmd = '%s freq %s' % (cmd, ' '.join(self.freqlist))
                 self.lock.release()
                 os.system('%s >/dev/null 2>/dev/null' % cmd)
+                #print 'sudo %s' % cmd
+                print "scan"
             time.sleep(.01)
+            #time.sleep(.1)
 
     def __init__(self, interface, idx=0):
         self.interface = interface
@@ -80,7 +84,21 @@ class Scanner(object):
 
     def set_freqs(self, minf, maxf, spacing):
         self.lock.acquire()
-        self.freqlist = ['%s' % x for x in range(minf, maxf + spacing, spacing)]
+        #self.freqlist = ['%s' % x for x in range(minf, maxf + spacing, spacing)]        
+        self.freqlist = ['%s' % x for x in range(minf, 2472 + spacing, spacing)]   
+             
+        # self.freqlist.append('2482')
+        # self.freqlist.append('2492')
+        # self.freqlist.append('2499')
+        # self.freqlist.append('2512')
+        # self.freqlist.append('2532')
+        # self.freqlist.append('2572')
+        # self.freqlist.append('2592')
+        # self.freqlist.append('2612')
+        # self.freqlist.append('2632')
+        # self.freqlist.append('2652')
+        # self.freqlist.append('2672')
+        
         self.lock.release()
         # TODO restart scanner
         self.freq_idx = 0;
