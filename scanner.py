@@ -14,6 +14,7 @@ class Scanner(object):
     is_ath10k = False
     lock = None
     run = True
+    noise_iface = None
 
     def dev_to_phy(self, dev):
         f = open('/sys/class/net/%s/phy80211/name' % dev)
@@ -41,19 +42,31 @@ class Scanner(object):
 
     def _scan(self):
         while self.run:
+           
             if self.is_ath10k:
                 self.cmd_trigger()
 
             if self.mode.value == 1:  # only in 'chanscan' mode
-                cmd = 'iw dev %s scan' % self.interface
-                self.lock.acquire()
-#                self.freqlist=['2372','2472']; # tisho
                 if self.freqlist:
-                    cmd = '%s freq %s' % (cmd, ' '.join(self.freqlist))
-                self.lock.release()
-                os.system('%s >/dev/null 2>/dev/null' % cmd)
-                #print 'sudo %s' % cmd
-                print "scan"
+                    for index, value in enumerate(self.freqlist):
+
+                        cmd = 'iw dev %s scan' % self.interface
+                      
+                        self.lock.acquire()
+                        #self.freqlist=['2372','2472']; # tisho                        
+                        #cmd = '%s freq %s' % (cmd, ' '.join(self.freqlist))
+
+                        cmd = '%s freq %s' % (cmd, value)
+                        self.lock.release()  
+                        if self.noise_iface : 
+                            noise_freq='iwconfig %s freq %sM' % (self.noise_iface,value)
+                            os.system('%s ' % noise_freq)
+                            time.sleep(0.05)
+                        os.system('%s >/dev/null 2>/dev/null' % cmd)
+                        print 'sudo %s' % cmd
+                        #print "scan"
+
+
             time.sleep(.01)
             #time.sleep(.1)
 
@@ -84,8 +97,8 @@ class Scanner(object):
 
     def set_freqs(self, minf, maxf, spacing):
         self.lock.acquire()
-        #self.freqlist = ['%s' % x for x in range(minf, maxf + spacing, spacing)]        
-        self.freqlist = ['%s' % x for x in range(minf, 2472 + spacing, spacing)]   
+        self.freqlist = ['%s' % x for x in range(minf, maxf + spacing, spacing)]        
+        #self.freqlist = ['%s' % x for x in range(minf, 2472 + spacing, spacing)]   
              
         # self.freqlist.append('2482')
         # self.freqlist.append('2492')

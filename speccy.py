@@ -23,8 +23,10 @@ class Speccy(object):
     # min freq, max freq (inclusive), ch spacing
     # we will render +/- 10 MHz
     bands = [
-        #(2412, 2412, 10),        # 2.4 GHz
-        (2312, 2472, 10),        # 2.4 GHz
+        
+        #(2312, 2472, 10),        # 2.4 GHz
+        #(2312, 2672, 10),        # 2.4 GHz
+        (2312, 2412, 10),        # 2.4 GHz
         (5180, 5240, 20),       # U-NII-1
         (5260, 5320, 20),       # U-NII-2
         (5500, 5580, 20),       # U-NII-2e-a
@@ -67,6 +69,8 @@ class Speccy(object):
         self.scanners = []
         idx = 0
         for iface in ifaces:
+            if idx>0:
+                break # Only one to listen
             scanner = Scanner(iface, idx=idx)
             scanner.mode_chanscan()
             fn = '%s/spectral_scan0' % scanner.get_debugfs_dir()
@@ -74,6 +78,12 @@ class Speccy(object):
             scanner.file_reader = reader
             self.scanners.append(scanner)
             idx += 1
+
+        if len(ifaces)==2 :
+            scanner.noise_iface=ifaces[1]
+            #start noise generator
+            os.system('sudo ./noise.sh %s >/dev/null' % scanner.noise_iface)  
+
         self.dev_idx = 0  # id of currently selected device
         if not os.path.exists("./spectral_data"):
             os.mkdir("./spectral_data")
